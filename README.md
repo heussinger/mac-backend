@@ -20,6 +20,13 @@ Bestehende Einträge im alten Format werden von der Suche weiterhin gefunden. Ve
 UPDATE geraet SET mac = LOWER(REPLACE(REPLACE(mac, '-', ''), ':', ''));
 ```
 
+Steht dieselbe MAC in mehreren Schreibweisen in der Tabelle, liefert die Suche 409 und das `UPDATE` scheitert an der Eindeutigkeit. Solche Dubletten zuerst finden und bereinigen:
+
+```sql
+SELECT LOWER(REPLACE(REPLACE(mac, '-', ''), ':', '')) AS mac, array_agg(id) AS ids
+FROM geraet GROUP BY 1 HAVING COUNT(*) > 1;
+```
+
 ## Konfiguration
 
 Der Datenbankzugang kommt aus Umgebungsvariablen:
@@ -104,7 +111,7 @@ Basis-Pfad: `/api/geraete`
 |---|---|---|---|
 | GET | `/api/geraete` | alle Geräte | 200 |
 | GET | `/api/geraete/{id}` | Gerät per ID | 200 / 404 |
-| GET | `/api/geraete/suche?mac=…` | Gerät per MAC | 200 / 404 / 400 bei ungültiger MAC |
+| GET | `/api/geraete/suche?mac=…` | Gerät per MAC | 200 / 404 / 400 bei ungültiger MAC / 409 bei Altbestand in mehreren Schreibweisen |
 | POST | `/api/geraete` | Gerät anlegen | 201 / 400 bei ungültiger MAC / 409 bei doppelter MAC |
 | PUT | `/api/geraete/{id}` | Gerät ändern | 200 / 400 / 404 / 409 |
 | DELETE | `/api/geraete/{id}` | Gerät löschen | 204 / 404 |

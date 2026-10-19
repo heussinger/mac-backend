@@ -3,6 +3,7 @@ package eu.xplace.macbackend;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -71,10 +72,10 @@ public class GeraetController {
         return ResponseEntity.noContent().build();
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ExceptionHandler({DataIntegrityViolationException.class, IncorrectResultSizeDataAccessException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public void konflikt() {
-        // z.B. MAC bereits vorhanden
+        // z.B. MAC bereits vorhanden, oder Suche findet Altbestand in mehreren Schreibweisen
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
