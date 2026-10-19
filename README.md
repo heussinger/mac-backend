@@ -62,8 +62,26 @@ Läuft Postgres auf demselben Rechner, `localhost` im Container funktioniert nic
 
 | Gestartet auf | Tags |
 |---|---|
-| Branch `main` | `latest`, `sha-<commit>` |
-| Git-Tag `v1.2.3` | `1.2.3`, `sha-<commit>` |
+| Branch `main` | `latest`, `main-<commit>-<YYYYMMDDHHmmss>` |
+| Git-Tag `v1.2.3` | `1.2.3` |
+
+Der Tag `main-<commit>-<zeitstempel>` ist für die Flux Image-Automation gedacht: Über den Zeitstempel findet Flux das neueste Image.
+
+```yaml
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: mac-backend
+spec:
+  imageRepositoryRef:
+    name: mac-backend
+  filterTags:
+    pattern: '^main-[a-f0-9]+-(?P<ts>[0-9]+)$'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc
+```
 
 Benötigte Repository-Secrets (Settings → Secrets and variables → Actions):
 

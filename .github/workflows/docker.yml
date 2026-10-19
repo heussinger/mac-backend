@@ -23,7 +23,7 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
-            type=sha
+            type=raw,value={{branch}}-{{sha}}-{{date 'YYYYMMDDHHmmss'}},enable=${{ github.ref_type == 'branch' }}
 
       - uses: docker/build-push-action@v6
         with:
