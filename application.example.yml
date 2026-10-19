@@ -1,0 +1,9 @@
+# Vorlage: als application.yml neben die JAR (oder nach ./config/) kopieren und anpassen
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5332/macdb
+    username: user
+    password: geheim
+
+# server:
+#   port: 8080
