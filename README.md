@@ -51,6 +51,32 @@ mvn spring-boot:run
 
 Der Server läuft standardmäßig auf Port 8080.
 
+## Docker
+
+Image bauen und starten (die `application.yml` wird nach `/app/config/` gemountet):
+
+```bash
+docker build -t mac-backend .
+docker run -p 8080:8080 -v /pfad/zum/config-ordner:/app/config:ro mac-backend
+```
+
+Läuft Postgres auf dem Host, in der `application.yml` statt `localhost` die Host-Adresse verwenden (oder `--network host`).
+
+### GitHub Action
+
+`.github/workflows/docker.yml` baut das Image und pusht es nach Docker Hub als `<DOCKERHUB_USERNAME>/mac-backend`:
+
+| Auslöser | Tags |
+|---|---|
+| Push auf `main` | `latest`, `sha-<commit>` |
+| Git-Tag `v1.2.3` | `1.2.3`, `sha-<commit>` |
+| manuell (`workflow_dispatch`) | je nach Branch/Tag |
+
+Benötigte Repository-Secrets (Settings → Secrets and variables → Actions):
+
+- `DOCKERHUB_USERNAME`: Docker-Hub-Benutzername
+- `DOCKERHUB_TOKEN`: Docker-Hub-Access-Token (Docker Hub → Account Settings → Personal access tokens, Recht „Read & Write“)
+
 ## API
 
 Basis-Pfad: `/api/geraete`
