@@ -16,23 +16,17 @@ Die MAC wird so gespeichert, wie sie gesendet wird. Die Suche ignoriert Groß-/K
 
 ## Konfiguration
 
-Der Datenbankzugang steht **nicht** im Repo, sondern in einer externen `application.yml`. Vorlage: [`application.example.yml`](application.example.yml)
+Der Datenbankzugang kommt aus Umgebungsvariablen:
 
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5332/macdb
-    username: user
-    password: geheim
-```
+| Variable | Bedeutung | Standard |
+|---|---|---|
+| `DB_HOST` | Postgres-Host | `localhost` |
+| `DB_PORT` | Postgres-Port | `5432` |
+| `DB_NAME` | Datenbankname | `macdb` |
+| `DB_USER` | Benutzer | – (Pflicht) |
+| `DB_PASSWORD` | Passwort | – (Pflicht) |
 
-Spring Boot findet die Datei automatisch, wenn sie im Arbeitsverzeichnis (`./application.yml`) oder in `./config/` liegt. Alternativ:
-
-```bash
-java -jar mac-backend.jar --spring.config.additional-location=/pfad/zur/application.yml
-```
-
-`application.yml` und `config/` sind in `.gitignore` eingetragen.
+Die Variablen werden in [`application.example.yml`](application.example.yml) zur Datenbank-URL zusammengesetzt. Im Docker-Image liegt diese Datei als `/app/config/application.yml` und wird automatisch geladen.
 
 Die Datenbank muss existieren, z. B.:
 
@@ -40,37 +34,36 @@ Die Datenbank muss existieren, z. B.:
 docker exec <postgres-container> psql -U user -d postgres -c "CREATE DATABASE macdb"
 ```
 
-## Bauen und starten
+## Bauen und lokal starten
 
 ```bash
 mvn package
-java -jar target/mac-backend-0.0.1-SNAPSHOT.jar
-# oder während der Entwicklung:
-mvn spring-boot:run
+DB_PORT=5332 DB_USER=user DB_PASSWORD=geheim \
+  java -jar target/mac-backend-0.0.1-SNAPSHOT.jar --spring.config.additional-location=application.example.yml
 ```
 
-Der Server läuft standardmäßig auf Port 8080.
+Der Server läuft standardmäßig auf Port 8080 (änderbar mit `SERVER_PORT`).
 
 ## Docker
 
-Image bauen und starten (die `application.yml` wird nach `/app/config/` gemountet):
-
 ```bash
 docker build -t mac-backend .
-docker run -p 8080:8080 -v /pfad/zum/config-ordner:/app/config:ro mac-backend
+docker run -p 8080:8080 \
+  -e DB_HOST=db-host -e DB_PORT=5432 -e DB_NAME=macdb \
+  -e DB_USER=user -e DB_PASSWORD=geheim \
+  mac-backend
 ```
 
-Läuft Postgres auf dem Host, in der `application.yml` statt `localhost` die Host-Adresse verwenden (oder `--network host`).
+Läuft Postgres auf demselben Rechner, `localhost` im Container funktioniert nicht: dann `--network host` verwenden oder die Host-Adresse als `DB_HOST` setzen.
 
 ### GitHub Action
 
-`.github/workflows/docker.yml` baut das Image und pusht es nach Docker Hub als `<DOCKERHUB_USERNAME>/mac-backend`:
+`.github/workflows/docker.yml` baut das Image und pusht es nach Docker Hub als `<DOCKERHUB_USERNAME>/mac-backend`. Die Action startet **nur von Hand**: GitHub → Actions → „Docker Image“ → „Run workflow“ (oder `gh workflow run docker.yml`).
 
-| Auslöser | Tags |
+| Gestartet auf | Tags |
 |---|---|
-| Push auf `main` | `latest`, `sha-<commit>` |
+| Branch `main` | `latest`, `sha-<commit>` |
 | Git-Tag `v1.2.3` | `1.2.3`, `sha-<commit>` |
-| manuell (`workflow_dispatch`) | je nach Branch/Tag |
 
 Benötigte Repository-Secrets (Settings → Secrets and variables → Actions):
 

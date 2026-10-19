@@ -8,6 +8,7 @@ RUN mvn -q -DskipTests package
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /build/target/mac-backend-*.jar app.jar
+COPY application.example.yml config/application.yml
 EXPOSE 8080
-# Datenbankzugang: application.yml nach /app/config/ mounten
+# Datenbankzugang über DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 ENTRYPOINT ["java", "-jar", "app.jar"]
