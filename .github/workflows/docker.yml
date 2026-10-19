@@ -7,6 +7,12 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
+      - name: Nur auf Versions-Tag (v1.2.3) starten
+        if: github.ref_type != 'tag'
+        run: |
+          echo "::error::Workflow auf einem Git-Tag wie v1.2.3 starten, nicht auf einem Branch"
+          exit 1
+
       - uses: actions/checkout@v4
 
       - uses: docker/setup-buildx-action@v3
@@ -21,9 +27,7 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/mac-backend
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
-            type=raw,value={{branch}}-{{sha}}-{{date 'YYYYMMDDHHmmss'}},enable=${{ github.ref_type == 'branch' }}
 
       - uses: docker/build-push-action@v6
         with:

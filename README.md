@@ -58,14 +58,19 @@ Läuft Postgres auf demselben Rechner, `localhost` im Container funktioniert nic
 
 ### GitHub Action
 
-`.github/workflows/docker.yml` baut das Image und pusht es nach Docker Hub als `<DOCKERHUB_USERNAME>/mac-backend`. Die Action startet **nur von Hand**: GitHub → Actions → „Docker Image“ → „Run workflow“ (oder `gh workflow run docker.yml`).
+`.github/workflows/docker.yml` baut das Image und pusht es nach Docker Hub als `<DOCKERHUB_USERNAME>/mac-backend`. Die Action startet **nur von Hand** und **nur auf einem Versions-Tag**:
 
-| Gestartet auf | Tags |
-|---|---|
-| Branch `main` | `latest`, `main-<commit>-<YYYYMMDDHHmmss>` |
-| Git-Tag `v1.2.3` | `1.2.3` |
+```bash
+git tag v1.2.3
+git push origin v1.2.3
+gh workflow run docker.yml --ref v1.2.3
+```
 
-Der Tag `main-<commit>-<zeitstempel>` ist für die Flux Image-Automation gedacht: Über den Zeitstempel findet Flux das neueste Image.
+(oder GitHub → Actions → „Docker Image“ → „Run workflow“ → bei „Use workflow from“ den Tag auswählen)
+
+Das Image bekommt die Tags `1.2.3` und `latest`. Auf einem Branch gestartet bricht die Action mit einer Fehlermeldung ab.
+
+Für die Flux Image-Automation:
 
 ```yaml
 apiVersion: image.toolkit.fluxcd.io/v1beta2
@@ -75,12 +80,9 @@ metadata:
 spec:
   imageRepositoryRef:
     name: mac-backend
-  filterTags:
-    pattern: '^main-[a-f0-9]+-(?P<ts>[0-9]+)$'
-    extract: '$ts'
   policy:
-    numerical:
-      order: asc
+    semver:
+      range: '>=1.0.0'
 ```
 
 Benötigte Repository-Secrets (Settings → Secrets and variables → Actions):
