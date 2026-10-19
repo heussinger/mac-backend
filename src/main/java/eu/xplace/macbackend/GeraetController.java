@@ -22,9 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class GeraetController {
 
     private final GeraetRepository repository;
+    private final MacService macService;
 
-    public GeraetController(GeraetRepository repository) {
+    public GeraetController(GeraetRepository repository, MacService macService) {
         this.repository = repository;
+        this.macService = macService;
     }
 
     @GetMapping
@@ -39,13 +41,14 @@ public class GeraetController {
 
     @GetMapping("/suche")
     public ResponseEntity<Geraet> nachMac(@RequestParam String mac) {
-        return ResponseEntity.of(repository.findByMacIgnoreCase(mac));
+        return ResponseEntity.of(macService.sucheNachMac(mac));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Geraet anlegen(@RequestBody Geraet geraet) {
         geraet.setId(null);
+        geraet.setMac(macService.normalisieren(geraet.getMac()));
         return repository.save(geraet);
     }
 
@@ -55,6 +58,7 @@ public class GeraetController {
             return ResponseEntity.notFound().build();
         }
         geraet.setId(id);
+        geraet.setMac(macService.normalisieren(geraet.getMac()));
         return ResponseEntity.ok(repository.save(geraet));
     }
 
@@ -71,5 +75,11 @@ public class GeraetController {
     @ResponseStatus(HttpStatus.CONFLICT)
     public void konflikt() {
         // z.B. MAC bereits vorhanden
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public void ungueltigeAnfrage() {
+        // z.B. ungültige oder fehlende MAC
     }
 }

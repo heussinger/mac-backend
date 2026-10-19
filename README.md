@@ -12,7 +12,13 @@ Tabelle `geraet` (wird beim Start automatisch angelegt):
 | `name` | varchar | Gerätename, Pflichtfeld |
 | `mac` | varchar | MAC-Adresse, Pflichtfeld, eindeutig |
 
-Die MAC wird so gespeichert, wie sie gesendet wird. Die Suche ignoriert Groß-/Kleinschreibung, aber nicht das Format (`AA:BB:…` ≠ `AA-BB-…`).
+Beim Anlegen und Ändern wird die MAC normalisiert und ohne Trennzeichen in Kleinbuchstaben gespeichert (`aabbccddeeff`). Akzeptiert werden `aa-bb-cc-dd-ee-ff`, `aa:bb:cc:dd:ee:ff` und `aabbccddeeff` (Groß-/Kleinschreibung egal); andere Werte ergeben 400. Die Suche akzeptiert dieselben Schreibweisen.
+
+Bestehende Einträge im alten Format werden von der Suche weiterhin gefunden. Vereinheitlichen lassen sie sich mit:
+
+```sql
+UPDATE geraet SET mac = LOWER(REPLACE(REPLACE(mac, '-', ''), ':', ''));
+```
 
 ## Konfiguration
 
@@ -98,9 +104,9 @@ Basis-Pfad: `/api/geraete`
 |---|---|---|---|
 | GET | `/api/geraete` | alle Geräte | 200 |
 | GET | `/api/geraete/{id}` | Gerät per ID | 200 / 404 |
-| GET | `/api/geraete/suche?mac=…` | Gerät per MAC | 200 / 404 |
-| POST | `/api/geraete` | Gerät anlegen | 201 / 409 bei doppelter MAC |
-| PUT | `/api/geraete/{id}` | Gerät ändern | 200 / 404 / 409 |
+| GET | `/api/geraete/suche?mac=…` | Gerät per MAC | 200 / 404 / 400 bei ungültiger MAC |
+| POST | `/api/geraete` | Gerät anlegen | 201 / 400 bei ungültiger MAC / 409 bei doppelter MAC |
+| PUT | `/api/geraete/{id}` | Gerät ändern | 200 / 400 / 404 / 409 |
 | DELETE | `/api/geraete/{id}` | Gerät löschen | 204 / 404 |
 
 ### Beispiele
@@ -116,5 +122,5 @@ curl "localhost:8080/api/geraete/suche?mac=aa:bb:cc:dd:ee:ff"
 Antwort:
 
 ```json
-{"id":1,"name":"Drucker","mac":"AA:BB:CC:DD:EE:FF"}
+{"id":1,"name":"Drucker","mac":"aabbccddeeff"}
 ```
