@@ -40,25 +40,23 @@ jobs:
         uses: actions/checkout@v4
       - name: Read latest version
         run: echo "VERSION=$(cat $VERSION_FILE)" >> "$GITHUB_ENV"
-      - name: Generate next bugfix release version or next develop version
+      - name: Generate next bugfix release version
         if: env.BUMP_TYPE == 'bugfix_release'
         run: |
           NEW_VERSION=$(echo $VERSION | cut -d"." -f1).$(echo $VERSION | cut -d"." -f2).$(($(echo $VERSION | cut -d"." -f3) + 1))
           echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
-      - name: Generate next bugfix release version or next develop version
+      - name: Generate next minor release version
         if: env.BUMP_TYPE == 'minor_release'
         run: |
           NEW_VERSION=$(echo $VERSION | cut -d"." -f1).$($(echo $VERSION | cut -d"." -f2) + 1).$((echo $VERSION | cut -d"." -f3))
           echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
-      - name: Generate next bugfix release version or next develop version
+      - name: Generate  next major release version
         if: env.BUMP_TYPE == 'major_release'
         run: |
           NEW_VERSION=$($(echo $VERSION | cut -d"." -f1) + 1).$(echo $VERSION | cut -d"." -f2).$((echo $VERSION | cut -d"." -f3))
           echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
       - name: bump txt version file
         run: echo "$NEW_VERSION" > "$VERSION_FILE"
-      - name: make pull request
-        run: echo "done"
       - name: commit version file
         #env:
         #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
