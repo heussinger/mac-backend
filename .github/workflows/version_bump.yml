@@ -40,6 +40,16 @@ jobs:
         run: |
           NEW_VERSION=$(echo $VERSION | cut -d"." -f1).$(echo $VERSION | cut -d"." -f2).$(($(echo $VERSION | cut -d"." -f3) + 1))
           echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
+      - name: Generate next bugfix release version or next develop version
+        if: env.BUMP_TYPE == 'minor_release'
+        run: |
+          NEW_VERSION=$(echo $VERSION | cut -d"." -f1).$($(echo $VERSION | cut -d"." -f2) + 1).$((echo $VERSION | cut -d"." -f3))
+          echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
+      - name: Generate next bugfix release version or next develop version
+        if: env.BUMP_TYPE == 'major_release'
+        run: |
+          NEW_VERSION=$($(echo $VERSION | cut -d"." -f1) + 1).$(echo $VERSION | cut -d"." -f2).$((echo $VERSION | cut -d"." -f3))
+          echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
       - name: bump txt version file
         run: echo "$NEW_VERSION" > "$VERSION_FILE"
       - name: make pull request
