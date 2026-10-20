@@ -1,6 +1,6 @@
 # mac-backend
 
-Einfaches Spring-Boot-Backend (Java 17, Maven), das eine PostgreSQL-Tabelle mit Geräten über HTTP bereitstellt und die Suche nach MAC-Adresse erlaubt.
+Einfaches Spring-Boot-Backend (Java 17, Maven), das eine MySQL-Tabelle mit Geräten über HTTP bereitstellt und die Suche nach MAC-Adresse erlaubt.
 
 ## Datenmodell
 
@@ -23,8 +23,8 @@ UPDATE geraet SET mac = LOWER(REPLACE(REPLACE(mac, '-', ''), ':', ''));
 Steht dieselbe MAC in mehreren Schreibweisen in der Tabelle, liefert die Suche 409 und das `UPDATE` scheitert an der Eindeutigkeit. Solche Dubletten zuerst finden und bereinigen:
 
 ```sql
-SELECT LOWER(REPLACE(REPLACE(mac, '-', ''), ':', '')) AS mac, array_agg(id) AS ids
-FROM geraet GROUP BY 1 HAVING COUNT(*) > 1;
+SELECT LOWER(REPLACE(REPLACE(mac, '-', ''), ':', '')) AS mac, GROUP_CONCAT(id) AS ids
+FROM geraet GROUP BY LOWER(REPLACE(REPLACE(mac, '-', ''), ':', '')) HAVING COUNT(*) > 1;
 ```
 
 ## Konfiguration
@@ -33,8 +33,8 @@ Der Datenbankzugang kommt aus Umgebungsvariablen:
 
 | Variable | Bedeutung | Standard |
 |---|---|---|
-| `DB_HOST` | Postgres-Host | `localhost` |
-| `DB_PORT` | Postgres-Port | `5432` |
+| `DB_HOST` | MySQL-Host | `localhost` |
+| `DB_PORT` | MySQL-Port | `3306` |
 | `DB_NAME` | Datenbankname | `macdb` |
 | `DB_USER` | Benutzer | – (Pflicht) |
 | `DB_PASSWORD` | Passwort | – (Pflicht) |
@@ -44,14 +44,14 @@ Die Variablen werden in [`application.example.yml`](application.example.yml) zur
 Die Datenbank muss existieren, z. B.:
 
 ```bash
-docker exec <postgres-container> psql -U user -d postgres -c "CREATE DATABASE macdb"
+docker exec <mysql-container> mysql -u root -p -e "CREATE DATABASE macdb CHARACTER SET utf8mb4; GRANT ALL ON macdb.* TO 'user'@'%'"
 ```
 
 ## Bauen und lokal starten
 
 ```bash
 mvn package
-DB_PORT=5332 DB_USER=user DB_PASSWORD=geheim \
+DB_USER=user DB_PASSWORD=geheim \
   java -jar target/mac-backend-0.0.1-SNAPSHOT.jar --spring.config.additional-location=application.example.yml
 ```
 
@@ -62,12 +62,12 @@ Der Server läuft standardmäßig auf Port 8080 (änderbar mit `SERVER_PORT`).
 ```bash
 docker build -t mac-backend .
 docker run -p 8080:8080 \
-  -e DB_HOST=db-host -e DB_PORT=5432 -e DB_NAME=macdb \
+  -e DB_HOST=db-host -e DB_PORT=3306 -e DB_NAME=macdb \
   -e DB_USER=user -e DB_PASSWORD=geheim \
   mac-backend
 ```
 
-Läuft Postgres auf demselben Rechner, `localhost` im Container funktioniert nicht: dann `--network host` verwenden oder die Host-Adresse als `DB_HOST` setzen.
+Läuft MySQL auf demselben Rechner, `localhost` im Container funktioniert nicht: dann `--network host` verwenden oder die Host-Adresse als `DB_HOST` setzen.
 
 ### GitHub Action
 
