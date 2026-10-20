@@ -25,6 +25,8 @@ jobs:
   bump_version:
     name: Bump-Version
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       VERSION_FILE: ${{inputs.version_file}}
       BUMP_TYPE: ${{inputs.type}}
@@ -43,8 +45,8 @@ jobs:
       - name: make pull request
         run: echo "done"
       - name: commit version file
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #env:
+        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
