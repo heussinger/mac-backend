@@ -5,7 +5,7 @@ run-name: Bump Version on ${{ github.ref_name }}
 on:
   pull_request:
     types: [closed]
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
     inputs:
       type:
@@ -33,7 +33,7 @@ jobs:
     env:
       VERSION_FILE: ${{inputs.version_file  || 'VERSION'}}
       BUMP_TYPE: ${{inputs.type || 'bugfix_release'}}
-    #if: github.ref == 'refs/heads/master'
+    #if: github.ref == 'refs/heads/main'
     if: github.event.pull_request.merged == true
     steps:
       - name: Checkout
