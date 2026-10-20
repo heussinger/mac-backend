@@ -3,6 +3,9 @@ run-name: Bump Version on ${{ github.ref_name }}
 
 # Trigger on create a branch/release or manually with a specific version bump type
 on:
+  pull_request:
+    types: [closed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       type:
@@ -28,9 +31,10 @@ jobs:
     permissions:
       contents: write
     env:
-      VERSION_FILE: ${{inputs.version_file}}
-      BUMP_TYPE: ${{inputs.type}}
-    if: github.ref == 'refs/heads/master'
+      VERSION_FILE: ${{inputs.version_file  || 'VERSION'}}
+      BUMP_TYPE: ${{inputs.type || 'bugfix_release'}}
+    #if: github.ref == 'refs/heads/main'
+    if: github.event.pull_request.merged == true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,9 +68,9 @@ jobs:
           git add $VERSION_FILE
           git commit -m "Bump version to $NEW_VERSION"
           git push
-      #- name: Create and push tag
-      #  run: |
-      #    git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
-      #    git push origin "v$NEW_VERSION"
+      - name: Create and push tag
+        run: |
+          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+          git push origin "v$NEW_VERSION"
           
       
