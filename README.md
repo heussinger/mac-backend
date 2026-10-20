@@ -37,7 +37,7 @@ Der Datenbankzugang kommt aus Umgebungsvariablen:
 | `DB_PORT` | MySQL-Port | `3306` |
 | `DB_NAME` | Datenbankname | `macdb` |
 | `DB_USER` | Benutzer | – (Pflicht) |
-| `DB_PASSWORD` | Passwort | – (Pflicht) |
+| `DB_PWD` | Passwort | – (Pflicht) |
 
 Die Variablen werden in [`application.example.yml`](application.example.yml) zur Datenbank-URL zusammengesetzt. Im Docker-Image liegt diese Datei als `/app/config/application.yml` und wird automatisch geladen.
 
@@ -51,7 +51,7 @@ docker exec <mysql-container> mysql -u root -p -e "CREATE DATABASE macdb CHARACT
 
 ```bash
 mvn package
-DB_USER=user DB_PASSWORD=geheim \
+DB_USER=user DB_PWD=geheim \
   java -jar target/mac-backend-0.0.1-SNAPSHOT.jar --spring.config.additional-location=application.example.yml
 ```
 
@@ -63,7 +63,7 @@ Der Server läuft standardmäßig auf Port 8080 (änderbar mit `SERVER_PORT`).
 docker build -t mac-backend .
 docker run -p 8080:8080 \
   -e DB_HOST=db-host -e DB_PORT=3306 -e DB_NAME=macdb \
-  -e DB_USER=user -e DB_PASSWORD=geheim \
+  -e DB_USER=user -e DB_PWD=geheim \
   mac-backend
 ```
 

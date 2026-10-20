@@ -10,5 +10,5 @@ WORKDIR /app
 COPY --from=build /build/target/mac-backend-*.jar app.jar
 COPY application.example.yml config/application.yml
 EXPOSE 8080
-# Datenbankzugang über DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+# Datenbankzugang über DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PWD
 ENTRYPOINT ["java", "-jar", "app.jar"]

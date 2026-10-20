@@ -4,4 +4,4 @@ spring:
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:macdb}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    password: ${DB_PWD}
