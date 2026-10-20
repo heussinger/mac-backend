@@ -63,4 +63,9 @@ jobs:
           git add $VERSION_FILE
           git commit -m "Bump version to $NEW_VERSION"
           git push
+      #- name: Create and push tag
+      #  run: |
+      #    git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+      #    git push origin "v$NEW_VERSION"
+          
       
