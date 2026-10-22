@@ -3,20 +3,21 @@ run-name: Bump Version on ${{ github.ref_name }}
 
 # Trigger on create a branch/release or manually with a specific version bump type
 on:
-  pull_request:
-    types: [closed]
-    branches: [main]
-  workflow_dispatch:
+ # pull_request:
+ #   types: [closed]
+ #   branches: [main]
+  workflow_call:
     inputs:
       type:
         description: 'What type of version bump to perform'
         required: true
         default: 'bugfix_release'
-        type: choice
-        options:
-        - bugfix_release
-        - minor_release
-        - major_release
+        type: string
+     #   type: choice
+     #   options:
+     #   - bugfix_release
+     #   - minor_release
+     #   - major_release
       version_file:
         description: 'the path of the version file'
         required: false
