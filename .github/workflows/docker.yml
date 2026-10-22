@@ -13,9 +13,14 @@ jobs:
           echo "::error::Workflow auf einem Git-Tag wie v1.2.3 starten, nicht auf einem Branch"
           exit 1
 
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
-
+      
+      - name: Bump version
+        uses: ./.github/workflows/version_bump.yaml
+        with:
+          bump_type: "patch fix"
+      
       - name: Setup
         uses: docker/setup-buildx-action@v3
 
