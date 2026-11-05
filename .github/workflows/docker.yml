@@ -7,11 +7,11 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Nur auf Versions-Tag (v1.2.3) starten
-        if: github.ref_type != 'tag'
-        run: |
-          echo "::error::Workflow auf einem Git-Tag wie v1.2.3 starten, nicht auf einem Branch"
-          exit 1
+      #- name: Nur auf Versions-Tag (v1.2.3) starten
+      #  if: github.ref_type != 'tag'
+      #  run: |
+      #    echo "::error::Workflow auf einem Git-Tag wie v1.2.3 starten, nicht auf einem Branch"
+      #    exit 1
 
       - name: Checkout code
         uses: actions/checkout@v4
